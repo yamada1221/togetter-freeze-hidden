@@ -1,64 +1,95 @@
-import fetch from "node-fetch";
-import { JSDOM } from "jsdom";
 import fs from "fs";
+import path from "path";
 
-const RANKING_URL = "https://togetter.com/li/hot";
-const LIMIT = 5;
-const KEYWORD = "凍結";
+const OUTPUT = path.resolve("extension/frozenUsers.json");
+const RANKING_URL = "https://togetter.com/ranking";
 
-async function fetchHTML(url) {
+const SUSPENDED_PATTERNS = [
+  /account\/suspended/i,
+  /このアカウントは凍結されています/,
+  /Account suspended/i
+];
+
+async function fetchHtml(url) {
   const res = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0" }
   });
-  return res.text();
+  if (!res.ok) throw new Error(res.status);
+  return await res.text();
 }
 
-async function getTopEntries() {
-  const html = await fetchHTML(RANKING_URL);
-  const dom = new JSDOM(html);
-  const links = [...dom.window.document.querySelectorAll("a")];
+/** ランキング上位5件のまとめURL取得 */
+function extractTopSummaryUrls(html) {
+  const urls = [];
+  const regex = /https:\/\/togetter\.com\/li\/\d+/g;
 
-  return links
-    .map(a => a.href)
-    .filter(h => h && h.startsWith("/li/"))
-    .slice(0, LIMIT)
-    .map(h => `https://togetter.com${h}`);
+  let m;
+  while ((m = regex.exec(html)) !== null) {
+    if (!urls.includes(m[0])) urls.push(m[0]);
+    if (urls.length >= 5) break;
+  }
+  return urls;
 }
 
-async function extractFrozenUsers(entryUrl) {
-  const html = await fetchHTML(entryUrl);
-  const dom = new JSDOM(html);
-  const frozen = new Set();
+/** コメント欄ユーザー抽出 */
+function extractCommentUsers(html) {
+  const set = new Set();
+  const regex = /@([a-zA-Z0-9_]{1,15})/g;
 
-  dom.window.document.querySelectorAll(".comment").forEach(c => {
-    if (c.textContent.includes(KEYWORD)) {
-      const user = c.querySelector(".comment_user");
-      if (user) frozen.add(user.textContent.trim());
-    }
-  });
+  let m;
+  while ((m = regex.exec(html)) !== null) {
+    set.add(m[1]);
+  }
+  return [...set];
+}
 
-  return frozen;
+/** X凍結判定 */
+async function isSuspended(username) {
+  try {
+    const html = await fetchHtml(`https://x.com/${username}`);
+    return SUSPENDED_PATTERNS.some(r => r.test(html));
+  } catch {
+    return false;
+  }
 }
 
 async function main() {
-  const users = new Set();
+  console.log("Fetch ranking");
+  const rankingHtml = await fetchHtml(RANKING_URL);
 
-  const entries = await getTopEntries();
-  for (const url of entries) {
-    const frozen = await extractFrozenUsers(url);
-    frozen.forEach(u => users.add(u));
+  const summaryUrls = extractTopSummaryUrls(rankingHtml);
+  console.log("Top summaries:", summaryUrls.length);
+
+  const candidates = new Set();
+
+  for (const url of summaryUrls) {
+    console.log("Fetch summary:", url);
+    const html = await fetchHtml(url);
+    extractCommentUsers(html).forEach(u => candidates.add(u));
+    await new Promise(r => setTimeout(r, 2000));
   }
 
-  const output = {
-    updated: new Date().toISOString().slice(0, 10),
-    source: "togetter-ranking-top5",
-    frozen_users: [...users].sort()
+  console.log("Candidate users:", candidates.size);
+
+  const frozen = [];
+
+  for (const user of candidates) {
+    console.log("Check:", user);
+    if (await isSuspended(user)) {
+      frozen.push(user);
+    }
+    await new Promise(r => setTimeout(r, 3000));
+  }
+
+  const result = {
+    updatedAt: new Date().toISOString(),
+    source: "Togetter ranking top5 comments",
+    count: frozen.length,
+    users: frozen
   };
 
-  fs.writeFileSync(
-    "frozen_users.json",
-    JSON.stringify(output, null, 2)
-  );
+  fs.writeFileSync(OUTPUT, JSON.stringify(result, null, 2), "utf-8");
+  console.log("Frozen users saved:", frozen.length);
 }
 
 main();

@@ -1,0 +1,22 @@
+name: Update frozen users list
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node script/update.js
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add frozen_users.json
+          git diff --cached --quiet || git commit -m "update frozen users"
+          git push

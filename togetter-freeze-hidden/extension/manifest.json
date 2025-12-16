@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Togetter Freeze Comment Folder",
+  "version": "1.0.0",
+  "description": "FreezeされたXアカウントのコメントを折りたたみ表示します",
+  "content_scripts": [
+    {
+      "matches": ["https://togetter.com/li/*"],
+      "js": ["content.js"]
+    }
+  ]
+}

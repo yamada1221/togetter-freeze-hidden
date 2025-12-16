@@ -25,7 +25,7 @@ jobs:
         run: npm install node-fetch jsdom
 
       - name: Run scraper
-        run: node scripts/updateFrozenUsers.js
+        run: node script/updateFrozenUsers.js
 
       - name: Commit & push
         run: |

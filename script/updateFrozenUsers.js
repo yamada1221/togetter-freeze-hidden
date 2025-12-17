@@ -21,13 +21,17 @@ async function fetchHtml(url) {
 /** ランキング上位5件のまとめURL取得 */
 function extractTopSummaryUrls(html) {
   const urls = [];
-  const regex = /https:\/\/togetter\.com\/li\/\d+/g;
+  const regex = /href="(\/li\/\d+)"/g;
 
   let m;
   while ((m = regex.exec(html)) !== null) {
-    if (!urls.includes(m[0])) urls.push(m[0]);
+    const fullUrl = "https://togetter.com" + m[1];
+    if (!urls.includes(fullUrl)) {
+      urls.push(fullUrl);
+    }
     if (urls.length >= 5) break;
   }
+
   return urls;
 }
 

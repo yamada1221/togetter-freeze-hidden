@@ -5,8 +5,12 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 出力はリポジトリ直下
 const OUTPUT_FILE = path.resolve(__dirname, '../frozen_users.json');
+
+// XのscreenNameとして有効か
+function isValidXScreenName(name) {
+  return /^[A-Za-z0-9_]{1,15}$/.test(name);
+}
 
 async function fetchJson(url) {
   const res = await fetch(url, {
@@ -51,9 +55,18 @@ async function fetchCommentUsers(matomeId) {
   const users = new Set();
 
   for (const c of data.comments) {
-    if (c.user?.screenName) {
-      users.add(c.user.screenName);
-    }
+    const profileUrl = c.user?.profileUrl;
+    if (!profileUrl) continue;
+
+    const m = profileUrl.match(/\/id\/([^/]+)/);
+    if (!m) continue;
+
+    const candidate = m[1];
+
+    // ★ ここが決定的に重要
+    if (!isValidXScreenName(candidate)) continue;
+
+    users.add(candidate);
   }
 
   return [...users];

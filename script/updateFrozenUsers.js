@@ -10,9 +10,7 @@ const OUTPUT_FILE = path.resolve(__dirname, '../frozen_users.json');
 
 async function fetchJson(url) {
   const res = await fetch(url, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0'
-    }
+    headers: { 'User-Agent': 'Mozilla/5.0' }
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
@@ -40,13 +38,10 @@ async function isUnavailableXUser(screenName) {
 
 async function fetchRankingTop5() {
   const html = await (await fetch('https://togetter.com/ranking')).text();
-  const ids = [...html.matchAll(/\/li\/(\d+)/g)]
+  return [...html.matchAll(/\/li\/(\d+)/g)]
     .map(m => m[1])
     .filter((v, i, a) => a.indexOf(v) === i)
     .slice(0, 5);
-
-  console.log('Top summaries:', ids.length);
-  return ids;
 }
 
 async function fetchCommentUsers(matomeId) {
@@ -54,41 +49,50 @@ async function fetchCommentUsers(matomeId) {
   const data = await fetchJson(url);
 
   const users = new Set();
+
   for (const c of data.comments) {
     if (c.user?.screenName) {
       users.add(c.user.screenName);
     }
   }
+
   return [...users];
 }
 
 async function main() {
   const frozenUsers = new Set();
+  const checkedUsers = new Set();
+
   const matomeIds = await fetchRankingTop5();
 
   for (const id of matomeIds) {
-    console.log('Fetch comments:', id);
     const users = await fetchCommentUsers(id);
 
-    for (const user of users) {
-      console.log('Check:', user);
-      const unavailable = await isUnavailableXUser(user);
+    for (const screenName of users) {
+      if (checkedUsers.has(screenName)) continue;
+      checkedUsers.add(screenName);
+
+      console.log('Check:', screenName);
+
+      const unavailable = await isUnavailableXUser(screenName);
       if (unavailable) {
-        frozenUsers.add(user);
+        frozenUsers.add(screenName);
       }
     }
   }
 
-  const result = [...frozenUsers].sort();
+  const output = [...frozenUsers].sort().map(name => ({
+    screenName: name,
+    xUnavailable: true
+  }));
 
   fs.writeFileSync(
     OUTPUT_FILE,
-    JSON.stringify(result, null, 2),
+    JSON.stringify(output, null, 2),
     'utf-8'
   );
 
-  console.log('Frozen / deleted users saved:', result.length);
-  console.log('Output:', OUTPUT_FILE);
+  console.log('Frozen / deleted users saved:', output.length);
 }
 
 main().catch(err => {

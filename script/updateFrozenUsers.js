@@ -1,99 +1,97 @@
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const OUTPUT = path.resolve("extension/frozenUsers.json");
-const RANKING_URL = "https://togetter.com/ranking";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const SUSPENDED_PATTERNS = [
-  /account\/suspended/i,
-  /このアカウントは凍結されています/,
-  /Account suspended/i
-];
+// 出力はリポジトリ直下
+const OUTPUT_FILE = path.resolve(__dirname, '../frozen_users.json');
 
-async function fetchHtml(url) {
+async function fetchJson(url) {
   const res = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0" }
-  });
-  if (!res.ok) throw new Error(res.status);
-  return await res.text();
-}
-
-/** ランキング上位5件のまとめURL取得 */
-function extractTopSummaryUrls(html) {
-  const urls = [];
-  const regex = /href="(\/li\/\d+)"/g;
-
-  let m;
-  while ((m = regex.exec(html)) !== null) {
-    const fullUrl = "https://togetter.com" + m[1];
-    if (!urls.includes(fullUrl)) {
-      urls.push(fullUrl);
+    headers: {
+      'User-Agent': 'Mozilla/5.0'
     }
-    if (urls.length >= 5) break;
-  }
-
-  return urls;
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
-/** コメント欄ユーザー抽出 */
-function extractCommentUsers(html) {
-  const set = new Set();
-  const regex = /@([a-zA-Z0-9_]{1,15})/g;
-
-  let m;
-  while ((m = regex.exec(html)) !== null) {
-    set.add(m[1]);
-  }
-  return [...set];
-}
-
-/** X凍結判定 */
-async function isSuspended(username) {
+/**
+ * X oEmbed による生存チェック
+ * false = 生存
+ * true  = 凍結 / 削除 / 存在しない
+ */
+async function isUnavailableXUser(screenName) {
+  const url = `https://publish.twitter.com/oembed?url=https://x.com/${screenName}`;
   try {
-    const html = await fetchHtml(`https://x.com/${username}`);
-    return SUSPENDED_PATTERNS.some(r => r.test(html));
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+    if (!res.ok) return true;
+
+    const json = await res.json();
+    return !!json.errors;
   } catch {
-    return false;
+    return true;
   }
+}
+
+async function fetchRankingTop5() {
+  const html = await (await fetch('https://togetter.com/ranking')).text();
+  const ids = [...html.matchAll(/\/li\/(\d+)/g)]
+    .map(m => m[1])
+    .filter((v, i, a) => a.indexOf(v) === i)
+    .slice(0, 5);
+
+  console.log('Top summaries:', ids.length);
+  return ids;
+}
+
+async function fetchCommentUsers(matomeId) {
+  const url = `https://api.togetter.com/v2/matomes/${matomeId}/comments`;
+  const data = await fetchJson(url);
+
+  const users = new Set();
+  for (const c of data.comments) {
+    if (c.user?.screenName) {
+      users.add(c.user.screenName);
+    }
+  }
+  return [...users];
 }
 
 async function main() {
-  console.log("Fetch ranking");
-  const rankingHtml = await fetchHtml(RANKING_URL);
+  const frozenUsers = new Set();
+  const matomeIds = await fetchRankingTop5();
 
-  const summaryUrls = extractTopSummaryUrls(rankingHtml);
-  console.log("Top summaries:", summaryUrls.length);
+  for (const id of matomeIds) {
+    console.log('Fetch comments:', id);
+    const users = await fetchCommentUsers(id);
 
-  const candidates = new Set();
-
-  for (const url of summaryUrls) {
-    console.log("Fetch summary:", url);
-    const html = await fetchHtml(url);
-    extractCommentUsers(html).forEach(u => candidates.add(u));
-    await new Promise(r => setTimeout(r, 2000));
-  }
-
-  console.log("Candidate users:", candidates.size);
-
-  const frozen = [];
-
-  for (const user of candidates) {
-    console.log("Check:", user);
-    if (await isSuspended(user)) {
-      frozen.push(user);
+    for (const user of users) {
+      console.log('Check:', user);
+      const unavailable = await isUnavailableXUser(user);
+      if (unavailable) {
+        frozenUsers.add(user);
+      }
     }
-    await new Promise(r => setTimeout(r, 3000));
   }
 
-  const result = {
-    updatedAt: new Date().toISOString(),
-    source: "Togetter ranking top5 comments",
-    count: frozen.length,
-    users: frozen
-  };
+  const result = [...frozenUsers].sort();
 
-  fs.writeFileSync(OUTPUT, JSON.stringify(result, null, 2), "utf-8");
-  console.log("Frozen users saved:", frozen.length);
+  fs.writeFileSync(
+    OUTPUT_FILE,
+    JSON.stringify(result, null, 2),
+    'utf-8'
+  );
+
+  console.log('Frozen / deleted users saved:', result.length);
+  console.log('Output:', OUTPUT_FILE);
 }
 
-main();
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});

@@ -21,9 +21,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install deps
-        run: npm install node-fetch jsdom
-
       - name: Run scraper
         run: node script/updateFrozenUsers.js
 

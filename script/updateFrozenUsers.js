@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 
 const OUTPUT_FILE = path.resolve(__dirname, '../frozen_users.json');
 
-// XのscreenNameとして有効か
+// XのscreenNameとして有効か（英数字・アンダースコア、1〜15文字）
 function isValidXScreenName(name) {
   return /^[A-Za-z0-9_]{1,15}$/.test(name);
 }
@@ -21,27 +21,72 @@ async function fetchJson(url) {
 }
 
 /**
- * X oEmbed による生存チェック
- * false = 生存
- * true  = 凍結 / 削除 / 存在しない
+ * X ユーザーの状態チェック（凍結・鍵アカウント両対応）
+ *
+ * 判定方針（oEmbed API を使用）:
+ *   - 凍結 / 削除: HTTP 404 または errors フィールドあり
+ *   - 鍵アカウント: HTTP 401
+ *   - 生存: HTTP 200 かつ errors なし
+ *
+ * 戻り値: { frozen: boolean, protected: boolean }
+ *   どちらも false の場合は正常ユーザー（またはチェック不能）
  */
-async function isUnavailableXUser(screenName) {
-  const url = `https://publish.twitter.com/oembed?url=https://x.com/${screenName}`;
+async function checkXUserStatus(screenName) {
+  const oembedUrl =
+    `https://publish.twitter.com/oembed` +
+    `?url=https://twitter.com/${screenName}` +
+    `&omit_script=true`;
+
   try {
-    const res = await fetch(url, {
+    const res = await fetch(oembedUrl, {
       headers: { 'User-Agent': 'Mozilla/5.0' }
     });
-    if (!res.ok) return true;
+
+    // 401 → 鍵アカウント
+    if (res.status === 401) {
+      return { frozen: false, protected: true };
+    }
+
+    // 404 → アカウント不在（凍結 or 削除）
+    if (res.status === 404) {
+      return { frozen: true, protected: false };
+    }
+
+    // その他 4xx/5xx はネットワーク由来の一時エラーとして判定不能扱い
+    if (!res.ok) {
+      return { frozen: false, protected: false };
+    }
 
     const json = await res.json();
-    return !!json.errors;
+
+    // errors フィールドがあれば凍結/削除扱い
+    if (json.errors) {
+      return { frozen: true, protected: false };
+    }
+
+    // HTML 本文に凍結メッセージが含まれるか確認
+    const html = json.html ?? '';
+    if (html.includes('Account suspended')) {
+      return { frozen: true, protected: false };
+    }
+
+    // 鍵アカウントのメッセージ確認
+    if (html.includes('protected')) {
+      return { frozen: false, protected: true };
+    }
+
+    return { frozen: false, protected: false };
   } catch {
-    return true;
+    // ネットワークエラー等は判定不能として生存扱い
+    return { frozen: false, protected: false };
   }
 }
 
 async function fetchRankingTop5() {
-  const html = await (await fetch('https://togetter.com/ranking')).text();
+  const res = await fetch('https://togetter.com/ranking', {
+    headers: { 'User-Agent': 'Mozilla/5.0' }
+  });
+  const html = await res.text();
   return [...html.matchAll(/\/li\/(\d+)/g)]
     .map(m => m[1])
     .filter((v, i, a) => a.indexOf(v) === i)
@@ -58,12 +103,13 @@ async function fetchCommentUsers(matomeId) {
     const profileUrl = c.user?.profileUrl;
     if (!profileUrl) continue;
 
-    const m = profileUrl.match(/\/id\/([^/]+)/);
+    // /id/{screenName} 形式から取得
+    const m = profileUrl.match(/\/id\/([^/?#]+)/);
     if (!m) continue;
 
     const candidate = m[1];
 
-    // ★ ここが決定的に重要
+    // 無効なscreenNameを除外
     if (!isValidXScreenName(candidate)) continue;
 
     users.add(candidate);
@@ -73,39 +119,45 @@ async function fetchCommentUsers(matomeId) {
 }
 
 async function main() {
-  const frozenUsers = new Set();
+  const unavailableUsers = [];
   const checkedUsers = new Set();
 
   const matomeIds = await fetchRankingTop5();
+  console.log('対象まとめID:', matomeIds);
 
   for (const id of matomeIds) {
-    const users = await fetchCommentUsers(id);
+    let users;
+    try {
+      users = await fetchCommentUsers(id);
+    } catch (e) {
+      console.warn(`まとめ ${id} のコメント取得失敗:`, e.message);
+      continue;
+    }
 
     for (const screenName of users) {
       if (checkedUsers.has(screenName)) continue;
       checkedUsers.add(screenName);
 
-      console.log('Check:', screenName);
+      const { frozen, protected: isProtected } = await checkXUserStatus(screenName);
 
-      const unavailable = await isUnavailableXUser(screenName);
-      if (unavailable) {
-        frozenUsers.add(screenName);
+      const status = frozen ? '凍結/削除' : isProtected ? '鍵' : '生存';
+      console.log(`  ${screenName}: ${status}`);
+
+      if (frozen || isProtected) {
+        unavailableUsers.push({
+          screenName,
+          xUnavailable: true,
+          ...(frozen      && { reason: 'suspended' }),
+          ...(isProtected && { reason: 'protected' }),
+        });
       }
     }
   }
 
-  const output = [...frozenUsers].sort().map(name => ({
-    screenName: name,
-    xUnavailable: true
-  }));
+  unavailableUsers.sort((a, b) => a.screenName.localeCompare(b.screenName));
 
-  fs.writeFileSync(
-    OUTPUT_FILE,
-    JSON.stringify(output, null, 2),
-    'utf-8'
-  );
-
-  console.log('Frozen / deleted users saved:', output.length);
+  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(unavailableUsers, null, 2), 'utf-8');
+  console.log(`\n保存完了: ${unavailableUsers.length} 件`);
 }
 
 main().catch(err => {

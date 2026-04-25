@@ -25,16 +25,28 @@ async function main() {
 
   for (const { screenName, label } of users) {
     const { status, text } = await fetchHtml(`https://x.com/${screenName}`);
+    console.log(`\n=== ${label}(${screenName}) HTTP=${status} bodyLen=${text.length} ===`);
 
-    // "suspended"前後50文字を全部抽出
-    const contexts = [];
-    let idx = 0;
-    while ((idx = text.indexOf('suspended', idx)) !== -1) {
-      contexts.push(text.slice(Math.max(0, idx - 50), idx + 60));
-      idx += 9;
+    // 埋め込みJSONを探す
+    const patterns = [
+      { key: '__NEXT_DATA__',       re: /<script id="__NEXT_DATA__"[^>]*>(.+?)<\/script>/s },
+      { key: '__initialState__',    re: /window\.__initialState__\s*=\s*'(.+?)';/s },
+      { key: '__STATE__',           re: /window\.__STATE__\s*=\s*({.+?});<\/script>/s },
+      { key: 'initialState',        re: /\\"initialState\\":({.+?})\s*\}/ },
+    ];
+
+    for (const { key, re } of patterns) {
+      const m = text.match(re);
+      console.log(`  ${key}: ${m ? 'found len=' + m[1].length : 'not found'}`);
+      if (m) console.log(`    snippet: ${m[1].slice(0, 150)}`);
     }
-    console.log(`\n=== ${label}(${screenName}) HTTP=${status} ===`);
-    contexts.forEach((c, i) => console.log(`  [${i}] ...${c}...`));
+
+    // scriptタグを全列挙して怪しいものを探す
+    const scripts = [...text.matchAll(/<script[^>]*>([^<]{20,})<\/script>/g)];
+    console.log(`  inline scripts count: ${scripts.length}`);
+    scripts.slice(0, 3).forEach((s, i) => {
+      console.log(`  script[${i}]: ${s[1].slice(0, 100)}`);
+    });
   }
 }
 

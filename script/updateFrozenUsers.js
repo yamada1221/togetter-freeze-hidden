@@ -21,32 +21,32 @@ async function main() {
   const users = [
     { screenName: 'brahmsnocturne', label: '生存' },
     { screenName: 'hinogegyo',      label: '凍結' },
+    { screenName: 'nullpo_yarou',   label: '生存(デフォルトアイコン)' },
   ];
 
   for (const { screenName, label } of users) {
-    const { status, text } = await fetchHtml(`https://x.com/${screenName}`);
-    console.log(`\n=== ${label}(${screenName}) HTTP=${status} bodyLen=${text.length} ===`);
+    const { text } = await fetchHtml(`https://x.com/${screenName}`);
 
-    // 埋め込みJSONを探す
-    const patterns = [
-      { key: '__NEXT_DATA__',       re: /<script id="__NEXT_DATA__"[^>]*>(.+?)<\/script>/s },
-      { key: '__initialState__',    re: /window\.__initialState__\s*=\s*'(.+?)';/s },
-      { key: '__STATE__',           re: /window\.__STATE__\s*=\s*({.+?});<\/script>/s },
-      { key: 'initialState',        re: /\\"initialState\\":({.+?})\s*\}/ },
-    ];
+    const m = text.match(/window\.__INITIAL_STATE__=({.+?});<\/script>/s);
+    if (!m) { console.log(`${label}(${screenName}): __INITIAL_STATE__ not found`); continue; }
 
-    for (const { key, re } of patterns) {
-      const m = text.match(re);
-      console.log(`  ${key}: ${m ? 'found len=' + m[1].length : 'not found'}`);
-      if (m) console.log(`    snippet: ${m[1].slice(0, 150)}`);
+    let state;
+    try { state = JSON.parse(m[1]); } catch(e) { console.log(`${label}(${screenName}): parse error ${e.message}`); continue; }
+
+    // usersエンティティを探す
+    const usersEntity = state?.entities?.users?.entities ?? {};
+    const userKeys = Object.keys(usersEntity);
+    console.log(`\n=== ${label}(${screenName}) ===`);
+    console.log(`  users entities keys: ${userKeys.slice(0,5)}`);
+    if (userKeys.length > 0) {
+      const u = usersEntity[userKeys[0]];
+      console.log(`  first user: ${JSON.stringify(u).slice(0, 300)}`);
     }
 
-    // scriptタグを全列挙して怪しいものを探す
-    const scripts = [...text.matchAll(/<script[^>]*>([^<]{20,})<\/script>/g)];
-    console.log(`  inline scripts count: ${scripts.length}`);
-    scripts.slice(0, 3).forEach((s, i) => {
-      console.log(`  script[${i}]: ${s[1].slice(0, 100)}`);
-    });
+    // suspended関連フィールドを直接探す
+    const raw = m[1];
+    const suspIdx = raw.indexOf('"suspended"');
+    if (suspIdx !== -1) console.log(`  "suspended" context: ${raw.slice(suspIdx, suspIdx+100)}`);
   }
 }
 

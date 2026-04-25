@@ -6,30 +6,35 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const OUTPUT_FILE = path.resolve(__dirname, '../frozen_users.json');
 
+async function fetchHtml(url) {
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Accept': 'text/html',
+    },
+    redirect: 'follow',
+  });
+  return { status: res.status, text: await res.text() };
+}
+
 async function main() {
-  const targets = [
-    'https://x.com/brahmsnocturne',
-    'https://x.com/hinogegyo',
-    'https://x.com/774rider',
-    'https://twitter.com/brahmsnocturne',
-    'https://twitter.com/hinogegyo',
+  const users = [
+    { screenName: 'brahmsnocturne', label: '生存' },
+    { screenName: 'hinogegyo',      label: '凍結' },
   ];
 
-  for (const url of targets) {
-    try {
-      const res = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Accept': 'text/html',
-        },
-        redirect: 'follow',
-      });
-      const text = await res.text();
-      const suspended = text.includes('suspended') || text.includes('凍結');
-      console.log(`[DEBUG] ${url} → HTTP ${res.status} suspended=${suspended} bodyLen=${text.length} snippet=${text.slice(0,100)}`);
-    } catch(e) {
-      console.log(`[DEBUG] ${url} → ERROR: ${e.message}`);
+  for (const { screenName, label } of users) {
+    const { status, text } = await fetchHtml(`https://x.com/${screenName}`);
+
+    // "suspended"前後50文字を全部抽出
+    const contexts = [];
+    let idx = 0;
+    while ((idx = text.indexOf('suspended', idx)) !== -1) {
+      contexts.push(text.slice(Math.max(0, idx - 50), idx + 60));
+      idx += 9;
     }
+    console.log(`\n=== ${label}(${screenName}) HTTP=${status} ===`);
+    contexts.forEach((c, i) => console.log(`  [${i}] ...${c}...`));
   }
 }
 

@@ -13,16 +13,19 @@ async function fetchJson(url) {
 }
 
 async function main() {
-  // 凍結・鍵アカウントを含むまとめ
   const id = '2689501';
   const data = await fetchJson(`https://api.togetter.com/v2/matomes/${id}/comments`);
 
-  console.log('[DEBUG] 全コメント数:', data.comments.length);
+  // hinogegyo30856 のコメントを探す
+  const target = data.comments.find(c => c.user?.profileUrl?.includes('hinogegyo30856'));
+  console.log('[DEBUG] hinogegyo30856 comment:', JSON.stringify(target));
 
-  // 全コメントのuserフィールドを全部出力
+  // iconがデフォルト画像かどうかも確認（凍結アカウントはデフォルトアイコンになることがある）
   for (const c of data.comments) {
-    const u = c.user;
-    console.log(`[DEBUG] user: ${JSON.stringify(u)}`);
+    const icon = c.user?.icon ?? '';
+    if (icon.includes('default') || icon === '') {
+      console.log('[DEBUG] default/empty icon user:', JSON.stringify(c.user));
+    }
   }
 }
 

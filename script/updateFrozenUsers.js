@@ -17,6 +17,24 @@ async function fetchHtml(url) {
   return { status: res.status, text: await res.text() };
 }
 
+// ブラケットカウントでJSONの終端を正確に見つける
+function extractJson(text, startMarker) {
+  const start = text.indexOf(startMarker);
+  if (start === -1) return null;
+  const jsonStart = text.indexOf('{', start);
+  if (jsonStart === -1) return null;
+
+  let depth = 0;
+  for (let i = jsonStart; i < text.length; i++) {
+    if (text[i] === '{') depth++;
+    else if (text[i] === '}') {
+      depth--;
+      if (depth === 0) return text.slice(jsonStart, i + 1);
+    }
+  }
+  return null;
+}
+
 async function main() {
   const users = [
     { screenName: 'brahmsnocturne', label: '生存' },
@@ -27,26 +45,25 @@ async function main() {
   for (const { screenName, label } of users) {
     const { text } = await fetchHtml(`https://x.com/${screenName}`);
 
-    const m = text.match(/window\.__INITIAL_STATE__=({.+?});<\/script>/s);
-    if (!m) { console.log(`${label}(${screenName}): __INITIAL_STATE__ not found`); continue; }
+    const raw = extractJson(text, 'window.__INITIAL_STATE__=');
+    if (!raw) { console.log(`${label}(${screenName}): not found`); continue; }
 
     let state;
-    try { state = JSON.parse(m[1]); } catch(e) { console.log(`${label}(${screenName}): parse error ${e.message}`); continue; }
+    try { state = JSON.parse(raw); } catch(e) { console.log(`${label}(${screenName}): parse error ${e.message}`); continue; }
 
-    // usersエンティティを探す
+    console.log(`\n=== ${label}(${screenName}) ===`);
+    console.log(`  top-level keys: ${Object.keys(state)}`);
+
+    // usersを探す
     const usersEntity = state?.entities?.users?.entities ?? {};
     const userKeys = Object.keys(usersEntity);
-    console.log(`\n=== ${label}(${screenName}) ===`);
-    console.log(`  users entities keys: ${userKeys.slice(0,5)}`);
+    console.log(`  user count: ${userKeys.length}`);
     if (userKeys.length > 0) {
       const u = usersEntity[userKeys[0]];
-      console.log(`  first user: ${JSON.stringify(u).slice(0, 300)}`);
+      console.log(`  user fields: ${Object.keys(u)}`);
+      console.log(`  suspended: ${u.suspended}`);
+      console.log(`  screen_name: ${u.screen_name}`);
     }
-
-    // suspended関連フィールドを直接探す
-    const raw = m[1];
-    const suspIdx = raw.indexOf('"suspended"');
-    if (suspIdx !== -1) console.log(`  "suspended" context: ${raw.slice(suspIdx, suspIdx+100)}`);
   }
 }
 

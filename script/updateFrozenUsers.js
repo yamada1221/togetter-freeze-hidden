@@ -6,10 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const OUTPUT_FILE = path.resolve(__dirname, '../frozen_users.json');
 
-async function fetchJson(url) {
+async function fetchRaw(url) {
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  return { status: res.status, text: await res.text() };
 }
 
 async function fetchRankingTop5() {
@@ -23,15 +22,22 @@ async function fetchRankingTop5() {
 
 async function main() {
   const matomeIds = await fetchRankingTop5();
-  console.log('対象まとめID:', matomeIds);
+  const id = matomeIds[0];
+  console.log('対象まとめID:', id);
 
-  const url = `https://api.togetter.com/v2/matomes/${matomeIds[0]}`;
-  const data = await fetchJson(url);
+  // 候補エンドポイントを順番に試す
+  const endpoints = [
+    `https://api.togetter.com/v2/matomes/${id}/items`,
+    `https://api.togetter.com/v2/matomes/${id}/tweets`,
+    `https://api.togetter.com/v2/matomes/${id}/elements`,
+    `https://api.togetter.com/v1/matomes/${id}/items`,
+    `https://api.togetter.com/v1/matome/${id}`,
+  ];
 
-  const matome = data.matome;
-  console.log('[DEBUG] matome keys:', Object.keys(matome));
-  console.log('[DEBUG] matome.items[0]:', JSON.stringify(matome.items?.[0]).slice(0, 400));
-  console.log('[DEBUG] matome.items[1]:', JSON.stringify(matome.items?.[1]).slice(0, 400));
+  for (const ep of endpoints) {
+    const { status, text } = await fetchRaw(ep);
+    console.log(`[DEBUG] ${ep} → HTTP ${status} | ${text.slice(0, 120)}`);
+  }
 }
 
 main().catch(err => { console.error(err); process.exit(1); });

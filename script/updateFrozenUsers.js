@@ -25,14 +25,13 @@ async function main() {
   const matomeIds = await fetchRankingTop5();
   console.log('対象まとめID:', matomeIds);
 
-  // まず1件だけコメントデータの生の構造を確認する
-  const url = `https://api.togetter.com/v2/matomes/${matomeIds[0]}/comments`;
+  // まとめ本体（ツイート引用）のAPIを確認
+  const url = `https://api.togetter.com/v2/matomes/${matomeIds[0]}`;
   const data = await fetchJson(url);
 
-  console.log('[DEBUG] comments[0] keys:', Object.keys(data.comments[0] ?? {}));
-  console.log('[DEBUG] comments[0].user keys:', Object.keys(data.comments[0]?.user ?? {}));
-  console.log('[DEBUG] comments[0] raw:', JSON.stringify(data.comments[0]).slice(0, 500));
-  console.log('[DEBUG] comments[1] raw:', JSON.stringify(data.comments[1]).slice(0, 500));
+  console.log('[DEBUG] matome keys:', Object.keys(data));
+  console.log('[DEBUG] matome.items[0]:', JSON.stringify(data.items?.[0]).slice(0, 400));
+  console.log('[DEBUG] matome.items[1]:', JSON.stringify(data.items?.[1]).slice(0, 400));
 }
 
 main().catch(err => { console.error(err); process.exit(1); });

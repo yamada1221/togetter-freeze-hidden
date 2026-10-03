@@ -5,137 +5,144 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const OUTPUT_FILE = path.resolve(__dirname, '../frozen_users.json');
+const FX_BASE_URL = 'https://api.fxtwitter.com/2/profile/';
+const USER_AGENT = 'togetter-freeze-hidden/1.1 (+https://github.com/yamada1221/togetter-freeze-hidden)';
 
-function isValidXScreenName(name) {
-  return /^[A-Za-z0-9_]{1,15}$/.test(name);
+export function isValidXScreenName(name) {
+  return /^[A-Za-z0-9_]{1,15}$/.test(String(name || ''));
 }
 
 async function fetchJson(url) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`);
   return res.json();
 }
 
-// ブラケットカウントでJSONの終端を正確に見つける
-function extractJson(text, startMarker) {
-  const start = text.indexOf(startMarker);
-  if (start === -1) return null;
-  const jsonStart = text.indexOf('{', start);
-  if (jsonStart === -1) return null;
-  let depth = 0;
-  for (let i = jsonStart; i < text.length; i++) {
-    if (text[i] === '{') depth++;
-    else if (text[i] === '}') {
-      depth--;
-      if (depth === 0) return text.slice(jsonStart, i + 1);
-    }
+export function classifyFxPayload(payload, httpStatus, expectedName) {
+  const unknown = detail => ({ status: 'unknown', reason: '', detail });
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return unknown(`FxTwitter HTTP ${httpStatus}; invalid response`);
   }
-  return null;
+  const message = String(payload.message || '').slice(0, 160).replace(/\s+/g, ' ');
+  const detail = `FxTwitter HTTP ${httpStatus}; code=${payload.code}; message=${message}`;
+  if (![200, 404].includes(httpStatus)) return unknown(detail);
+  if (payload.code === 404) {
+    if (payload.reason === 'suspended') return { status: 'suspended', reason: 'suspended', detail };
+    if (!payload.reason && message === 'User not found') return { status: 'not_found', reason: 'not_found', detail };
+    return unknown(detail);
+  }
+  if (httpStatus !== 200 || payload.code !== 200 || payload.reason) return unknown(detail);
+  const user = payload.user;
+  if (!user || typeof user !== 'object' || !isValidXScreenName(user.screen_name)) {
+    return unknown(detail + '; missing profile identity');
+  }
+  if (user.screen_name.toLowerCase() !== expectedName.toLowerCase()) {
+    return unknown(detail + '; profile identity mismatch');
+  }
+  return { status: 'active', reason: '', detail, protected: user.protected === true };
 }
 
-/**
- * x.com のプロフィールページの __INITIAL_STATE__ を解析して状態を返す
- * - 凍結/削除: usersエンティティが空
- * - 鍵: usersエンティティあり かつ protected === true
- * - 生存: usersエンティティあり かつ protected !== true
- */
-async function checkXUserStatus(screenName) {
+export async function probeXUser(screenName) {
+  if (!isValidXScreenName(screenName)) return { status: 'unknown', reason: '', detail: 'invalid username' };
+  const url = FX_BASE_URL + encodeURIComponent(screenName);
   try {
-    const res = await fetch(`https://x.com/${screenName}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html',
-      },
-      redirect: 'follow',
-    });
-
-    if (!res.ok) return { frozen: true, protected: false };
-
-    const text = await res.text();
-    const raw = extractJson(text, 'window.__INITIAL_STATE__=');
-    if (!raw) return { frozen: false, protected: false };
-
-    const state = JSON.parse(raw);
-    const usersEntity = state?.entities?.users?.entities ?? {};
-    const userKeys = Object.keys(usersEntity);
-
-    // ユーザーデータが存在しない → 凍結/削除
-    if (userKeys.length === 0) return { frozen: true, protected: false };
-
-    const user = usersEntity[userKeys[0]];
-
-    // protected フィールドで鍵アカウント判定
-    if (user.protected === true) return { frozen: false, protected: true };
-
-    return { frozen: false, protected: false };
-  } catch {
-    return { frozen: false, protected: false };
+    const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } });
+    let payload;
+    try {
+      payload = await res.json();
+    } catch {
+      return { status: 'unknown', reason: '', detail: `FxTwitter HTTP ${res.status}; non-JSON response` };
+    }
+    return classifyFxPayload(payload, res.status, screenName);
+  } catch (error) {
+    return { status: 'unknown', reason: '', detail: `FxTwitter temporary failure: ${error?.name || 'Error'}` };
   }
 }
 
 async function fetchRankingTop5() {
-  const res = await fetch('https://togetter.com/ranking', { headers: { 'User-Agent': 'Mozilla/5.0' } });
+  const res = await fetch('https://togetter.com/ranking', { headers: { 'User-Agent': USER_AGENT } });
+  if (!res.ok) throw new Error(`ランキング取得失敗: HTTP ${res.status}`);
   const html = await res.text();
-  return [...html.matchAll(/\/li\/(\d+)/g)]
-    .map(m => m[1])
-    .filter((v, i, a) => a.indexOf(v) === i)
+  const ids = [...html.matchAll(/\/li\/(\d+)/g)]
+    .map(match => match[1])
+    .filter((value, index, all) => all.indexOf(value) === index)
     .slice(0, 5);
+  if (ids.length !== 5) throw new Error(`ランキング上位5件を取得できませんでした（${ids.length}件）`);
+  return ids;
 }
 
 async function fetchCommentUsers(matomeId) {
-  const url = `https://api.togetter.com/v2/matomes/${matomeId}/comments`;
-  const data = await fetchJson(url);
+  const data = await fetchJson(`https://api.togetter.com/v2/matomes/${matomeId}/comments`);
+  if (!Array.isArray(data.comments)) throw new Error(`まとめ ${matomeId} のコメント形式が不正です`);
   const users = new Set();
-  for (const c of data.comments) {
-    const profileUrl = c.user?.profileUrl;
-    if (!profileUrl) continue;
-    const m = profileUrl.match(/\/id\/([^/?#]+)/);
-    if (!m) continue;
-    const candidate = m[1];
-    if (!isValidXScreenName(candidate)) continue;
-    users.add(candidate);
+  for (const comment of data.comments) {
+    const match = String(comment.user?.profileUrl || '').match(/\/id\/([^/?#]+)/);
+    if (match && isValidXScreenName(match[1])) users.add(match[1]);
   }
   return [...users];
 }
 
+export function normalizePreviousFrozen(payload) {
+  const list = Array.isArray(payload) ? payload : payload?.frozen_users;
+  if (!Array.isArray(list)) return new Set();
+  return new Set(list.map(item => typeof item === 'string' ? item : item?.screenName)
+    .filter(isValidXScreenName).map(name => name.toLowerCase()));
+}
+
+export function buildOutput(frozenUsers, now = new Date()) {
+  const updated = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).format(now);
+  return {
+    updated,
+    source: 'togetter-ranking-top5',
+    frozen_users: [...new Set(frozenUsers.map(String).filter(isValidXScreenName))]
+      .sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }))
+  };
+}
+
 async function main() {
-  const unavailableUsers = [];
-  const checkedUsers = new Set();
+  const control = await probeXUser('X');
+  if (control.status !== 'active') {
+    throw new Error(`FxTwitterの正常性確認に失敗しました: ${control.detail}`);
+  }
+
+  let previous = new Set();
+  try {
+    previous = normalizePreviousFrozen(JSON.parse(fs.readFileSync(OUTPUT_FILE, 'utf8')));
+  } catch {
+    // 初回作成時は前回データなしで続行する。
+  }
 
   const matomeIds = await fetchRankingTop5();
   console.log('対象まとめID:', matomeIds);
-
+  const users = new Set();
   for (const id of matomeIds) {
-    let users;
-    try {
-      users = await fetchCommentUsers(id);
-    } catch (e) {
-      console.warn(`まとめ ${id} のコメント取得失敗:`, e.message);
-      continue;
-    }
+    for (const screenName of await fetchCommentUsers(id)) users.add(screenName);
+  }
+  if (!users.size) throw new Error('対象コメントのXユーザーを1人も取得できませんでした');
 
-    for (const screenName of users) {
-      if (checkedUsers.has(screenName)) continue;
-      checkedUsers.add(screenName);
-
-      const { frozen, protected: isProtected } = await checkXUserStatus(screenName);
-      const status = frozen ? '凍結/削除' : isProtected ? '鍵' : '生存';
-      console.log(`  ${screenName}: ${status}`);
-
-      if (frozen || isProtected) {
-        unavailableUsers.push({
-          screenName,
-          xUnavailable: true,
-          ...(frozen      && { reason: 'suspended' }),
-          ...(isProtected && { reason: 'protected' }),
-        });
-      }
+  const frozen = [];
+  let known = 0;
+  for (const screenName of users) {
+    const result = await probeXUser(screenName);
+    console.log(`  ${screenName}: ${result.status}`);
+    if (result.status !== 'unknown') known++;
+    if (result.status === 'suspended' ||
+        (result.status === 'unknown' && previous.has(screenName.toLowerCase()))) {
+      frozen.push(screenName);
     }
   }
+  if (!known) throw new Error('全ユーザーが判定不能だったため、前回ファイルを保持します');
 
-  unavailableUsers.sort((a, b) => a.screenName.localeCompare(b.screenName));
-  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(unavailableUsers, null, 2), 'utf-8');
-  console.log(`\n保存完了: ${unavailableUsers.length} 件`);
+  const output = buildOutput(frozen);
+  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2) + '\n', 'utf8');
+  console.log(`保存完了: 凍結 ${output.frozen_users.length}件 / 確認 ${users.size}件`);
 }
 
-main().catch(err => { console.error(err); process.exit(1); });
+if (path.resolve(process.argv[1] || '') === __filename) {
+  main().catch(error => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

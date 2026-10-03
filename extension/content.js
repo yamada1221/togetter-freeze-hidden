@@ -1,7 +1,7 @@
 /**
  * content.js — Togetter Freeze Comment Hider
  *
- * Togetterのコメント欄で、凍結・鍵アカウントのコメントを折りたたみ表示する
+ * Togetterのコメント欄で、凍結アカウントのコメントを折りたたみ表示する
  * Chrome拡張機能のコンテンツスクリプト。
  *
  * frozen_users.json は GitHub Pages または raw.githubusercontent.com から取得する。
@@ -11,16 +11,21 @@ const FROZEN_USERS_URL =
   'https://raw.githubusercontent.com/yamada1221/togetter-freeze-hidden/main/frozen_users.json';
 
 /**
- * 凍結・鍵ユーザーリストを取得して Set にして返す
+ * 凍結ユーザーリストを取得して Set にして返す
  * @returns {Promise<Set<string>>} screenName の小文字 Set
  */
 async function fetchFrozenUserSet() {
   try {
     const res = await fetch(FROZEN_USERS_URL);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const list = await res.json();
-    // screenName を小文字で格納（大文字小文字を問わずマッチさせるため）
-    return new Set(list.map(u => u.screenName.toLowerCase()));
+    const payload = await res.json();
+    // 新形式を優先し、更新前の配列形式も読み込めるようにする。
+    const list = Array.isArray(payload) ? payload : payload?.frozen_users;
+    if (!Array.isArray(list)) throw new Error('不正な凍結ユーザーリスト');
+    return new Set(list
+      .map(item => typeof item === 'string' ? item : item?.screenName)
+      .filter(name => /^[A-Za-z0-9_]{1,15}$/.test(String(name || '')))
+      .map(name => name.toLowerCase()));
   } catch (e) {
     console.warn('[togetter-freeze-hidden] リスト取得失敗:', e);
     return new Set();
@@ -58,7 +63,7 @@ function collapseComment(el, screenName) {
 
   const summary = document.createElement('summary');
   summary.style.cssText = 'cursor: pointer; color: #888; font-size: 0.85em; user-select: none;';
-  summary.textContent = `⚠ @${screenName} のコメント（凍結・鍵アカウント）`;
+  summary.textContent = `@${screenName} のコメント（凍結アカウント）`;
 
   wrapper.appendChild(summary);
 

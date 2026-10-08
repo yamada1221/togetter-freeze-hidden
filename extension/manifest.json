@@ -6,7 +6,8 @@
   "content_scripts": [
     {
       "matches": ["https://togetter.com/li/*"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "css": ["content.css"]
     }
   ]
 }

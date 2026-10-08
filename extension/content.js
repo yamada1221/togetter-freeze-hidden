@@ -147,17 +147,6 @@ async function init() {
   const frozenSet = await fetchFrozenUserSet();
   if (frozenSet.size === 0) return;
 
-  const style = document.createElement('style');
-  // Use native details state directly: toggle events are asynchronous in Chrome.
-  // Once opened, the site's original display style applies without an override.
-  style.textContent = `
-    details[data-freeze-control="1"]:not([open]) + [data-freeze-hidden="1"],
-    li[data-freeze-control="1"]:has(> details:not([open])) + [data-freeze-hidden="1"] {
-      display: none !important;
-    }
-  `;
-  (document.head || document.documentElement).appendChild(style);
-
   // 初回スキャン
   processComments(frozenSet);
 

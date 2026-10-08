@@ -1,0 +1,5 @@
+/* Keep React-owned comments in place and use native details state for opening. */
+details[data-freeze-control="1"]:not([open]) + [data-freeze-hidden="1"],
+li[data-freeze-control="1"]:has(> details:not([open])) + [data-freeze-hidden="1"] {
+  display: none !important;
+}

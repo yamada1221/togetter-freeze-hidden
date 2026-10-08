@@ -75,6 +75,10 @@ test('modern comments use the author header, keep DOM parents and handle reused 
     }
     await page.locator('summary').click();
     assert.equal(await page.locator('#modern-frozen').isVisible(), true);
+    await page.locator('summary').click();
+    assert.equal(await page.locator('#modern-frozen').isVisible(), false);
+    await page.locator('summary').click();
+    assert.equal(await page.locator('#modern-frozen').isVisible(), true);
     await page.evaluate(() => document.getElementById('modern-active').append(document.createElement('span')));
     assert.equal(await page.locator('details').count(), 1);
     assert.equal(await page.locator('#modern-frozen').isVisible(), true);

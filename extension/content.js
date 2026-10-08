@@ -68,7 +68,6 @@ function extractScreenName(el) {
 function restoreComment(el) {
   const record = foldedComments.get(el);
   if (!record) return;
-  record.details.removeEventListener('toggle', record.onToggle);
   record.control.remove();
   delete el.dataset.freezeHidden;
   foldedComments.delete(el);
@@ -81,7 +80,7 @@ function restoreComment(el) {
  */
 function collapseComment(el, screenName) {
   const existing = foldedComments.get(el);
-  if (existing?.screenName === screenName && existing.control.parentElement === el.parentElement) return;
+  if (existing?.screenName === screenName && existing.control.nextElementSibling === el) return;
   restoreComment(el);
 
   // 折りたたみラッパーを作成
@@ -99,14 +98,9 @@ function collapseComment(el, screenName) {
   const control = el.parentElement.matches('ul, ol') ? document.createElement('li') : wrapper;
   if (control !== wrapper) control.appendChild(wrapper);
   control.dataset.freezeControl = '1';
-  const onToggle = () => {
-    if (wrapper.open) delete el.dataset.freezeHidden;
-    else el.dataset.freezeHidden = '1';
-  };
-  wrapper.addEventListener('toggle', onToggle);
-  foldedComments.set(el, { screenName, control, details: wrapper, onToggle });
+  foldedComments.set(el, { screenName, control });
+  el.dataset.freezeHidden = '1';
   el.before(control);
-  onToggle();
 }
 
 /**
@@ -154,7 +148,14 @@ async function init() {
   if (frozenSet.size === 0) return;
 
   const style = document.createElement('style');
-  style.textContent = '[data-freeze-hidden="1"] { display: none !important; }';
+  // Use native details state directly: toggle events are asynchronous in Chrome.
+  // Once opened, the site's original display style applies without an override.
+  style.textContent = `
+    details[data-freeze-control="1"]:not([open]) + [data-freeze-hidden="1"],
+    li[data-freeze-control="1"]:has(> details:not([open])) + [data-freeze-hidden="1"] {
+      display: none !important;
+    }
+  `;
   (document.head || document.documentElement).appendChild(style);
 
   // 初回スキャン

@@ -9,6 +9,7 @@
 
 const FROZEN_USERS_URL =
   'https://raw.githubusercontent.com/yamada1221/togetter-freeze-hidden/main/frozen_users.json';
+const foldedComments = new Map();
 
 /**
  * 凍結ユーザーリストを取得して Set にして返す
@@ -37,15 +38,40 @@ async function fetchFrozenUserSet() {
  * @param {Element} el
  * @returns {string|null}
  */
-function extractScreenName(el) {
-  // Togetterのコメント欄の構造:
-  // <a href="https://twitter.com/{screenName}"> または
-  // <a href="https://x.com/{screenName}">
-  const link = el.querySelector('a[href*="twitter.com/"], a[href*="x.com/"]');
-  if (!link) return null;
+function screenNameFromProfileUrl(value) {
+  try {
+    const url = new URL(value, document.baseURI);
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.port) return null;
+    let match;
+    if (['togetter.com', 'www.togetter.com'].includes(url.hostname)) {
+      match = url.pathname.match(/^\/id\/([A-Za-z0-9_]{1,15})\/?$/);
+    } else if (['x.com', 'www.x.com', 'twitter.com', 'www.twitter.com', 'mobile.twitter.com'].includes(url.hostname)) {
+      match = url.pathname.match(/^\/([A-Za-z0-9_]{1,15})\/?$/);
+    }
+    return match ? match[1].toLowerCase() : null;
+  } catch {
+    return null;
+  }
+}
 
-  const m = link.href.match(/(?:twitter|x)\.com\/([A-Za-z0-9_]{1,15})(?:[/?#]|$)/);
-  return m ? m[1].toLowerCase() : null;
+function extractScreenName(el) {
+  // Current Togetter uses a profile link in the comment's own header.
+  // Never search the comment body for quoted profiles or status links.
+  const authorLinks = el.querySelectorAll(
+    ':scope > header a.screen-name[href], :scope > .status a.twttrname[href], :scope > a.screen-name[href]'
+  );
+  const links = authorLinks.length ? authorLinks : el.querySelectorAll(':scope > a[href]');
+  const names = new Set([...links].map(link => screenNameFromProfileUrl(link.href)).filter(Boolean));
+  return names.size === 1 ? [...names][0] : null;
+}
+
+function restoreComment(el) {
+  const record = foldedComments.get(el);
+  if (!record) return;
+  record.details.removeEventListener('toggle', record.onToggle);
+  record.control.remove();
+  delete el.dataset.freezeHidden;
+  foldedComments.delete(el);
 }
 
 /**
@@ -54,8 +80,9 @@ function extractScreenName(el) {
  * @param {string} screenName
  */
 function collapseComment(el, screenName) {
-  if (el.dataset.freezeHidden) return; // 二重処理防止
-  el.dataset.freezeHidden = '1';
+  const existing = foldedComments.get(el);
+  if (existing?.screenName === screenName && existing.control.parentElement === el.parentElement) return;
+  restoreComment(el);
 
   // 折りたたみラッパーを作成
   const wrapper = document.createElement('details');
@@ -67,9 +94,19 @@ function collapseComment(el, screenName) {
 
   wrapper.appendChild(summary);
 
-  // 元のコメントをラッパーの中に移動
-  el.parentNode.insertBefore(wrapper, el);
-  wrapper.appendChild(el);
+  // React must keep ownership of the original node and its original parent.
+  // Add a sibling toggle and hide the comment in place instead of moving it.
+  const control = el.parentElement.matches('ul, ol') ? document.createElement('li') : wrapper;
+  if (control !== wrapper) control.appendChild(wrapper);
+  control.dataset.freezeControl = '1';
+  const onToggle = () => {
+    if (wrapper.open) delete el.dataset.freezeHidden;
+    else el.dataset.freezeHidden = '1';
+  };
+  wrapper.addEventListener('toggle', onToggle);
+  foldedComments.set(el, { screenName, control, details: wrapper, onToggle });
+  el.before(control);
+  onToggle();
 }
 
 /**
@@ -77,8 +114,13 @@ function collapseComment(el, screenName) {
  * @param {Set<string>} frozenSet
  */
 function processComments(frozenSet) {
-  // Togetterのコメント要素セレクター（2024年現在の構造に対応）
-  // クラス名は変更される可能性があるため複数パターンを試す
+  const modernCards = new Set();
+  for (const link of document.querySelectorAll('.comment_box header a.screen-name[href]')) {
+    const card = link.closest('header')?.parentElement;
+    if (card && (card.matches('li') || card.parentElement?.matches('li'))) modernCards.add(card);
+  }
+  const candidates = new Set(modernCards);
+  // Older layouts still use comment classes and direct profile links.
   const selectors = [
     'li.comment',
     'div.comment',
@@ -90,11 +132,17 @@ function processComments(frozenSet) {
   for (const selector of selectors) {
     const elements = document.querySelectorAll(selector);
     for (const el of elements) {
-      const screenName = extractScreenName(el);
-      if (screenName && frozenSet.has(screenName)) {
-        collapseComment(el, screenName);
-      }
+      if ([...modernCards].some(card => card !== el && el.contains(card))) continue;
+      candidates.add(el);
     }
+  }
+  for (const el of foldedComments.keys()) {
+    if (!el.isConnected || !candidates.has(el)) restoreComment(el);
+  }
+  for (const el of candidates) {
+    const screenName = extractScreenName(el);
+    if (screenName && frozenSet.has(screenName)) collapseComment(el, screenName);
+    else restoreComment(el);
   }
 }
 
@@ -104,6 +152,10 @@ function processComments(frozenSet) {
 async function init() {
   const frozenSet = await fetchFrozenUserSet();
   if (frozenSet.size === 0) return;
+
+  const style = document.createElement('style');
+  style.textContent = '[data-freeze-hidden="1"] { display: none !important; }';
+  (document.head || document.documentElement).appendChild(style);
 
   // 初回スキャン
   processComments(frozenSet);
@@ -116,6 +168,8 @@ async function init() {
   observer.observe(document.body, {
     childList: true,
     subtree: true,
+    attributes: true,
+    attributeFilter: ['href'],
   });
 }
 

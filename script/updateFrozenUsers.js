@@ -84,9 +84,12 @@ async function fetchCommentUsers(matomeId) {
 
 export function normalizePreviousFrozen(payload) {
   const list = Array.isArray(payload) ? payload : payload?.frozen_users;
-  if (!Array.isArray(list)) return new Set();
-  return new Set(list.map(item => typeof item === 'string' ? item : item?.screenName)
-    .filter(isValidXScreenName).map(name => name.toLowerCase()));
+  if (!Array.isArray(list)) throw new Error('前回の凍結リストの形式が不正です');
+  const names = list.map(item => typeof item === 'string' ? item : item?.screenName);
+  if (names.some(name => typeof name !== 'string' || !isValidXScreenName(name))) {
+    throw new Error('前回の凍結リストに不正なユーザー名があります');
+  }
+  return new Set(names.map(name => name.toLowerCase()));
 }
 
 export function buildOutput(frozenUsers, now = new Date()) {
@@ -101,7 +104,7 @@ export function buildOutput(frozenUsers, now = new Date()) {
   };
 }
 
-async function main() {
+export async function main() {
   const control = await probeXUser('X');
   if (control.status !== 'active') {
     throw new Error(`FxTwitterの正常性確認に失敗しました: ${control.detail}`);
@@ -110,8 +113,9 @@ async function main() {
   let previous = new Set();
   try {
     previous = normalizePreviousFrozen(JSON.parse(fs.readFileSync(OUTPUT_FILE, 'utf8')));
-  } catch {
-    // 初回作成時は前回データなしで続行する。
+  } catch (error) {
+    // Only a genuinely missing file is a first run. Read/parse errors must not erase history.
+    if (error.code !== 'ENOENT') throw error;
   }
 
   const matomeIds = await fetchRankingTop5();
@@ -136,7 +140,15 @@ async function main() {
   if (!known) throw new Error('全ユーザーが判定不能だったため、前回ファイルを保持します');
 
   const output = buildOutput(frozen);
-  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2) + '\n', 'utf8');
+  // Write on the same filesystem, replacing the public file only after the full write succeeds.
+  const temporaryDirectory = fs.mkdtempSync(path.join(path.dirname(OUTPUT_FILE), '.frozen-users-'));
+  try {
+    const temporaryFile = path.join(temporaryDirectory, 'frozen_users.json');
+    fs.writeFileSync(temporaryFile, JSON.stringify(output, null, 2) + '\n', 'utf8');
+    fs.renameSync(temporaryFile, OUTPUT_FILE);
+  } finally {
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+  }
   console.log(`保存完了: 凍結 ${output.frozen_users.length}件 / 確認 ${users.size}件`);
 }
 

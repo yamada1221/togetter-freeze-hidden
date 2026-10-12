@@ -19,3 +19,18 @@ jobs:
       - run: npm test
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
+      - name: Verify current ranking updater without publishing its output
+        run: |
+          node script/updateFrozenUsers.js
+          node --input-type=module - <<'JS'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          import { normalizePreviousFrozen } from './script/updateFrozenUsers.js';
+          const output = JSON.parse(fs.readFileSync('frozen_users.json', 'utf8'));
+          assert.equal(output.source, 'togetter-ranking-top5');
+          assert.match(output.updated, /^\d{4}-\d{2}-\d{2}$/);
+          const normalized = normalizePreviousFrozen(output);
+          assert.equal(normalized.size, output.frozen_users.length);
+          assert.equal(fs.readdirSync('.').some(name => name.startsWith('.frozen-users-')), false);
+          console.log(`LIVE UPDATE OK: source=${output.source}, updated=${output.updated}, frozen=${normalized.size}; output not committed`);
+          JS

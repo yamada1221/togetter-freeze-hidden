@@ -39,12 +39,20 @@ function run(entry, scenario, before = previous) {
             { status: scenario === 'ranking-failure' ? 503 : 200 });
         }
         if (/^https:\/\/api\.togetter\.com\/v2\/matomes\/10[0-4]\/comments$/.test(url)) {
-          return json(scenario === 'invalid-comments' ? {} : { comments: ['old', 'fresh', 'suspended', 'active'].map(name => ({ user: { profileUrl: 'https://togetter.com/id/' + name } })) });
+          const names = ['old', 'fresh', 'suspended', 'active'];
+          if (scenario === 'missing') names.push('missing');
+          const comments = names.map(name => ({ user: { profileUrl: 'https://togetter.com/id/' + name } }));
+          if (scenario === 'unsafe-profile') comments.push(
+            { user: { profileUrl: 'https://example.com/id/wrong_host' } },
+            { user: { profileUrl: 'https://togetter.com/id/other', name: 'different' } }
+          );
+          return json(scenario === 'invalid-comments' ? {} : { comments });
         }
         if (url.startsWith('https://api.fxtwitter.com/2/profile/')) {
           const name = url.split('/').pop();
-          if (scenario === 'all-unknown' || name === 'old' || name === 'fresh') return json({ code: 429 }, 429);
+          if (scenario === 'all-unknown' || name === 'old' || name === 'fresh' || name === 'outside_unknown') return json({ code: 429 }, 429);
           if (name === 'suspended') return json({ code: 404, reason: 'suspended' }, 404);
+          if (name === 'missing') return json({ code: 404, message: 'User not found' }, 404);
           return json({ code: 200, user: { screen_name: name } });
         }
         // Legacy HTML path: a temporary error is not evidence of an active account.
@@ -72,7 +80,7 @@ for (const entry of ['updateFrozenUsers.js', 'update.js']) {
       assert.ok(!result.files.some(name => name.startsWith('.frozen-users-')));
     });
   }
-  for (const before of ['{broken', '{"frozen_users":null}', '{"frozen_users":[null]}']) {
+  for (const before of ['{broken', 'null', '{"frozen_users":null}', '{"frozen_users":[null]}']) {
     test(`${entry}: refuses to replace unreadable previous data ${before}`, () => {
       const result = run(entry, 'normal', before);
       assert.notEqual(result.status, 0, result.stdout + result.stderr);
@@ -92,5 +100,27 @@ for (const entry of ['updateFrozenUsers.js', 'update.js']) {
     const result = run(entry, 'normal', null);
     assert.equal(result.status, 0, result.stdout + result.stderr);
     assert.deepEqual(JSON.parse(result.output).frozen_users, ['suspended']);
+  });
+  test(`${entry}: rechecks accounts outside the ranking and keeps history after restoration`, () => {
+    const before = JSON.stringify({ updated: '2026-10-01', frozen_users: ['outside_unknown', 'outside_active'] });
+    const result = run(entry, 'normal', before);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    const output = JSON.parse(result.output);
+    assert.deepEqual(output.frozen_users, ['outside_unknown', 'suspended']);
+    assert.ok(result.requests.includes('https://api.fxtwitter.com/2/profile/outside_unknown'));
+    assert.ok(result.requests.includes('https://api.fxtwitter.com/2/profile/outside_active'));
+    assert.equal(output.account_history.find(item => item.screen_name === 'outside_active').status, 'active');
+  });
+  test(`${entry}: does not hide a newly missing user on its first day`, () => {
+    const result = run(entry, 'missing', null);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    const output = JSON.parse(result.output);
+    assert.deepEqual(output.frozen_users, ['suspended']);
+    assert.equal(output.account_history.find(item => item.screen_name === 'missing').status, 'not_found_pending');
+  });
+  test(`${entry}: ignores unrelated and inconsistent profile URLs`, () => {
+    const result = run(entry, 'unsafe-profile', null);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.ok(!result.requests.some(url => url.endsWith('/wrong_host') || url.endsWith('/other')));
   });
 }

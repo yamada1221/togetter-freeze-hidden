@@ -3,5 +3,247 @@
   "source": "togetter-ranking-top5",
   "frozen_users": [
     "XCommentators"
+  ],
+  "account_history": [
+    {
+      "screen_name": "bygzam_ma08s",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-11-08",
+      "events": [
+        {
+          "date": "2026-10-04",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "CFg344v5E611198",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-10-26",
+      "events": [
+        {
+          "date": "2026-10-04",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "gotothesea_y",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-11-08",
+      "events": [
+        {
+          "date": "2026-11-08",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "HarumoJ1969",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-10-24",
+      "events": [
+        {
+          "date": "2026-10-20",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "JaH0Ol3WkkTh0Ad",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-11-05",
+      "events": [
+        {
+          "date": "2026-10-17",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "khwCGQZrH6eqNRY",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-11-02",
+      "events": [
+        {
+          "date": "2026-10-07",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "krsm_syo",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-10-04",
+      "events": [
+        {
+          "date": "2026-10-04",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "m______ny",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-11-01",
+      "events": [
+        {
+          "date": "2026-11-01",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "MinHatsuka",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-10-24",
+      "events": [
+        {
+          "date": "2026-10-24",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "piano9241",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-11-05",
+      "events": [
+        {
+          "date": "2026-10-09",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "ponzoo2you",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-10-21",
+      "events": [
+        {
+          "date": "2026-10-21",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "rrecter",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-10-23",
+      "events": [
+        {
+          "date": "2026-10-19",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "stillsnash",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-10-20",
+      "events": [
+        {
+          "date": "2026-10-06",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "suckminesuck",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-11-08",
+      "events": [
+        {
+          "date": "2026-10-26",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "tatahashi2023",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-10-27",
+      "events": [
+        {
+          "date": "2026-10-26",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "totty2nd",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-10-18",
+      "events": [
+        {
+          "date": "2026-10-06",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "Uw4c1AehB74N3IO",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-10-22",
+      "events": [
+        {
+          "date": "2026-10-04",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "voyageurforce",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-11-07",
+      "events": [
+        {
+          "date": "2026-10-04",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "XCommentators",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-11-10",
+      "events": [
+        {
+          "date": "2026-10-04",
+          "status": "previously_listed"
+        }
+      ]
+    },
+    {
+      "screen_name": "yuki_obana",
+      "status": "previously_listed",
+      "last_checked": null,
+      "last_listed_before_migration": "2026-11-08",
+      "events": [
+        {
+          "date": "2026-10-05",
+          "status": "previously_listed"
+        }
+      ]
+    }
   ]
 }

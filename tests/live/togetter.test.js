@@ -26,11 +26,14 @@ test('installed extension folds and opens a real Togetter comment', { timeout: 1
     }));
     const page = await context.newPage();
     await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    // Togetter loads the comments lazily when the reader reaches this section.
+    await page.locator('#comment-box-portal').scrollIntoViewIfNeeded({ timeout: 30000 });
     await page.locator(authorSelector).first().waitFor({ state: 'attached', timeout: 45000 });
     const href = await page.locator(authorSelector).first().getAttribute('href');
     selectedName = new URL(href, targetUrl).pathname.match(/^\/id\/([A-Za-z0-9_]{1,15})\/?$/)?.[1];
     assert.ok(selectedName, `コメント投稿者URLが不正です: ${href}`);
     await page.reload({ waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.locator('#comment-box-portal').scrollIntoViewIfNeeded({ timeout: 30000 });
     // Identify the author's own card by its exact profile path, not body links.
     await page.waitForFunction(name => [...document.querySelectorAll('.comment_box header a.screen-name[href]')]
       .some(link => new URL(link.href).pathname.toLowerCase() === `/id/${name.toLowerCase()}` &&

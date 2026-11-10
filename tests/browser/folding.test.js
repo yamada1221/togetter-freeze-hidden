@@ -31,6 +31,7 @@ for (const legacy of [false, true]) {
       page.on('pageerror', error => errors.push(error.message));
       await page.goto('https://togetter.com/li/100001');
       await page.waitForFunction(() => document.querySelectorAll('details').length === 1);
+      assert.match(await page.locator('summary').textContent(), /利用できない可能性のあるアカウント/);
       assert.equal(await page.locator('#active').evaluate(el => el.closest('details') === null), true);
       assert.equal(await page.locator('#frozen').isVisible(), false);
       assert.equal(await page.locator('#frozen').evaluate(el => el.parentElement.tagName), 'UL');

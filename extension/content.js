@@ -1,7 +1,7 @@
 /**
  * content.js — Togetter Freeze Comment Hider
  *
- * Togetterのコメント欄で、凍結アカウントのコメントを折りたたみ表示する
+ * Togetterのコメント欄で、利用できない可能性のあるアカウントのコメントを折りたたむ
  * Chrome拡張機能のコンテンツスクリプト。
  *
  * frozen_users.json は GitHub Pages または raw.githubusercontent.com から取得する。
@@ -89,7 +89,7 @@ function collapseComment(el, screenName) {
 
   const summary = document.createElement('summary');
   summary.style.cssText = 'cursor: pointer; color: #888; font-size: 0.85em; user-select: none;';
-  summary.textContent = `@${screenName} のコメント（凍結アカウント）`;
+  summary.textContent = `@${screenName} のコメント（利用できない可能性のあるアカウント）`;
 
   wrapper.appendChild(summary);
 

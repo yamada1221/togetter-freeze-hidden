@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-10",
+  "updated": "2026-11-12",
   "source": "togetter-ranking-top5",
   "frozen_users": [
     "bygzam_ma08s",
@@ -28,7 +28,7 @@
     {
       "screen_name": "bygzam_ma08s",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-11-08",
       "events": [
         {
@@ -44,7 +44,7 @@
     {
       "screen_name": "CFg344v5E611198",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-10-26",
       "events": [
         {
@@ -59,20 +59,23 @@
     },
     {
       "screen_name": "fukufuku_515",
-      "status": "not_found_pending",
-      "last_checked": "2026-11-10",
+      "status": "active",
+      "last_checked": "2026-11-12",
       "events": [
         {
           "date": "2026-11-10",
           "status": "not_found_pending"
+        },
+        {
+          "date": "2026-11-12",
+          "status": "active"
         }
-      ],
-      "not_found_since": "2026-11-10"
+      ]
     },
     {
       "screen_name": "gotothesea_y",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-11-08",
       "events": [
         {
@@ -88,7 +91,7 @@
     {
       "screen_name": "HarumoJ1969",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-10-24",
       "events": [
         {
@@ -104,7 +107,7 @@
     {
       "screen_name": "JaH0Ol3WkkTh0Ad",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-11-05",
       "events": [
         {
@@ -120,7 +123,7 @@
     {
       "screen_name": "khwCGQZrH6eqNRY",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-11-02",
       "events": [
         {
@@ -136,7 +139,7 @@
     {
       "screen_name": "krsm_syo",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-10-04",
       "events": [
         {
@@ -151,20 +154,23 @@
     },
     {
       "screen_name": "lawtomol",
-      "status": "not_found_pending",
-      "last_checked": "2026-11-10",
+      "status": "active",
+      "last_checked": "2026-11-12",
       "events": [
         {
           "date": "2026-11-10",
           "status": "not_found_pending"
+        },
+        {
+          "date": "2026-11-12",
+          "status": "active"
         }
-      ],
-      "not_found_since": "2026-11-10"
+      ]
     },
     {
       "screen_name": "m______ny",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-11-01",
       "events": [
         {
@@ -180,7 +186,7 @@
     {
       "screen_name": "MinHatsuka",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-10-24",
       "events": [
         {
@@ -196,7 +202,7 @@
     {
       "screen_name": "nixsia",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "events": [
         {
           "date": "2026-11-10",
@@ -207,7 +213,7 @@
     {
       "screen_name": "piano9241",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-11-05",
       "events": [
         {
@@ -223,7 +229,7 @@
     {
       "screen_name": "ponzoo2you",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-10-21",
       "events": [
         {
@@ -237,9 +243,21 @@
       ]
     },
     {
+      "screen_name": "Rg00E",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-12",
+      "events": [
+        {
+          "date": "2026-11-12",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-12"
+    },
+    {
       "screen_name": "rrecter",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-10-23",
       "events": [
         {
@@ -255,7 +273,7 @@
     {
       "screen_name": "stillsnash",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-10-20",
       "events": [
         {
@@ -271,7 +289,7 @@
     {
       "screen_name": "suckminesuck",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-11-08",
       "events": [
         {
@@ -287,7 +305,7 @@
     {
       "screen_name": "tatahashi2023",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-10-27",
       "events": [
         {
@@ -303,7 +321,7 @@
     {
       "screen_name": "totty2nd",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-10-18",
       "events": [
         {
@@ -319,7 +337,7 @@
     {
       "screen_name": "Uw4c1AehB74N3IO",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-10-22",
       "events": [
         {
@@ -335,7 +353,7 @@
     {
       "screen_name": "voyageurforce",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-11-07",
       "events": [
         {
@@ -351,7 +369,7 @@
     {
       "screen_name": "XCommentators",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-11-10",
       "events": [
         {
@@ -367,7 +385,7 @@
     {
       "screen_name": "yuki_obana",
       "status": "suspended",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-12",
       "last_listed_before_migration": "2026-11-08",
       "events": [
         {

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12",
+  "updated": "2026-11-13",
   "source": "togetter-ranking-top5",
   "frozen_users": [
     "bygzam_ma08s",
@@ -12,8 +12,10 @@
     "m______ny",
     "MinHatsuka",
     "nixsia",
+    "pache_357",
     "piano9241",
     "ponzoo2you",
+    "Rg00E",
     "rrecter",
     "stillsnash",
     "suckminesuck",
@@ -26,10 +28,67 @@
   ],
   "account_history": [
     {
+      "screen_name": "anko_3916",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "bnrzangief",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "boAThOwS",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
       "screen_name": "bygzam_ma08s",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-11-08",
+      "events": [
+        {
+          "date": "2026-10-04",
+          "status": "previously_listed"
+        },
+        {
+          "date": "2026-11-10",
+          "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "CFg344v5E611198",
+      "status": "suspended",
+      "last_checked": "2026-11-13",
+      "last_listed_before_migration": "2026-10-26",
       "events": [
         {
           "date": "2026-10-04",
@@ -42,20 +101,40 @@
       ]
     },
     {
-      "screen_name": "CFg344v5E611198",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
-      "last_listed_before_migration": "2026-10-26",
+      "screen_name": "cleardice",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "events": [
         {
-          "date": "2026-10-04",
-          "status": "previously_listed"
-        },
-        {
-          "date": "2026-11-10",
-          "status": "suspended"
+          "date": "2026-11-13",
+          "status": "not_found_pending"
         }
-      ]
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "fsheep",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "fujikurakotsu",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
     },
     {
       "screen_name": "fukufuku_515",
@@ -73,9 +152,33 @@
       ]
     },
     {
+      "screen_name": "GmailShoji",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "gontyan501",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
       "screen_name": "gotothesea_y",
       "status": "suspended",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-11-08",
       "events": [
         {
@@ -90,8 +193,8 @@
     },
     {
       "screen_name": "HarumoJ1969",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-10-24",
       "events": [
         {
@@ -101,13 +204,30 @@
         {
           "date": "2026-11-10",
           "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
         }
-      ]
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "HvNj8cftnjippp",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
     },
     {
       "screen_name": "JaH0Ol3WkkTh0Ad",
       "status": "suspended",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-11-05",
       "events": [
         {
@@ -121,9 +241,21 @@
       ]
     },
     {
+      "screen_name": "kartis56",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
       "screen_name": "khwCGQZrH6eqNRY",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-11-02",
       "events": [
         {
@@ -133,13 +265,18 @@
         {
           "date": "2026-11-10",
           "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
         }
-      ]
+      ],
+      "not_found_since": "2026-11-13"
     },
     {
       "screen_name": "krsm_syo",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-10-04",
       "events": [
         {
@@ -149,13 +286,18 @@
         {
           "date": "2026-11-10",
           "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
         }
-      ]
+      ],
+      "not_found_since": "2026-11-13"
     },
     {
       "screen_name": "lawtomol",
       "status": "active",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "events": [
         {
           "date": "2026-11-10",
@@ -168,9 +310,33 @@
       ]
     },
     {
+      "screen_name": "lgxxN1sTKPjyTZ2",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "lotus_world_end",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
       "screen_name": "m______ny",
       "status": "suspended",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-11-01",
       "events": [
         {
@@ -184,9 +350,21 @@
       ]
     },
     {
+      "screen_name": "magetarumage",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
       "screen_name": "MinHatsuka",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-10-24",
       "events": [
         {
@@ -196,24 +374,81 @@
         {
           "date": "2026-11-10",
           "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
         }
-      ]
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "MinorinParade",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "mozuta",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "negisamurai",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
     },
     {
       "screen_name": "nixsia",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "events": [
         {
           "date": "2026-11-10",
+          "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "pache_357",
+      "status": "suspended",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
           "status": "suspended"
         }
       ]
     },
     {
       "screen_name": "piano9241",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-11-05",
       "events": [
         {
@@ -223,13 +458,18 @@
         {
           "date": "2026-11-10",
           "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
         }
-      ]
+      ],
+      "not_found_since": "2026-11-13"
     },
     {
       "screen_name": "ponzoo2you",
       "status": "suspended",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-10-21",
       "events": [
         {
@@ -244,20 +484,23 @@
     },
     {
       "screen_name": "Rg00E",
-      "status": "not_found_pending",
-      "last_checked": "2026-11-12",
+      "status": "not_found",
+      "last_checked": "2026-11-13",
       "events": [
         {
           "date": "2026-11-12",
           "status": "not_found_pending"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found"
         }
-      ],
-      "not_found_since": "2026-11-12"
+      ]
     },
     {
       "screen_name": "rrecter",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-10-23",
       "events": [
         {
@@ -267,13 +510,66 @@
         {
           "date": "2026-11-10",
           "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
         }
-      ]
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "sakurahonaka",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "saru_soba_",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "ShiraishiGento",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "sliver_king",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
     },
     {
       "screen_name": "stillsnash",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-10-20",
       "events": [
         {
@@ -283,13 +579,18 @@
         {
           "date": "2026-11-10",
           "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
         }
-      ]
+      ],
+      "not_found_since": "2026-11-13"
     },
     {
       "screen_name": "suckminesuck",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-11-08",
       "events": [
         {
@@ -299,13 +600,30 @@
         {
           "date": "2026-11-10",
           "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
         }
-      ]
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "t_oroshi",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
     },
     {
       "screen_name": "tatahashi2023",
       "status": "suspended",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-10-27",
       "events": [
         {
@@ -319,9 +637,33 @@
       ]
     },
     {
+      "screen_name": "tc4049ubp",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "tomtomtom_tommn",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
       "screen_name": "totty2nd",
       "status": "suspended",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-10-18",
       "events": [
         {
@@ -336,8 +678,8 @@
     },
     {
       "screen_name": "Uw4c1AehB74N3IO",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-10-22",
       "events": [
         {
@@ -347,13 +689,18 @@
         {
           "date": "2026-11-10",
           "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
         }
-      ]
+      ],
+      "not_found_since": "2026-11-13"
     },
     {
       "screen_name": "voyageurforce",
       "status": "suspended",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-11-07",
       "events": [
         {
@@ -368,8 +715,8 @@
     },
     {
       "screen_name": "XCommentators",
-      "status": "suspended",
-      "last_checked": "2026-11-12",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-11-10",
       "events": [
         {
@@ -379,13 +726,30 @@
         {
           "date": "2026-11-10",
           "status": "suspended"
+        },
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
         }
-      ]
+      ],
+      "not_found_since": "2026-11-13"
+    },
+    {
+      "screen_name": "you51595623",
+      "status": "not_found_pending",
+      "last_checked": "2026-11-13",
+      "events": [
+        {
+          "date": "2026-11-13",
+          "status": "not_found_pending"
+        }
+      ],
+      "not_found_since": "2026-11-13"
     },
     {
       "screen_name": "yuki_obana",
       "status": "suspended",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "last_listed_before_migration": "2026-11-08",
       "events": [
         {
